@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import App from './App.vue';
-import './firebase'; // Import Firebase configuration
+import './services/firebase';
 import router from './router/index';
 import './style.css';
 
