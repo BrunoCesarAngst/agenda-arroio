@@ -1,4 +1,5 @@
 import { initializeApp } from 'firebase/app'
+import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
 import { getAuth, onAuthStateChanged } from 'firebase/auth'
 import { enableIndexedDbPersistence, getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
@@ -18,6 +19,12 @@ const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
 const storage = getStorage(app)
+
+// App Check com reCAPTCHA v3
+initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
+  isTokenAutoRefreshEnabled: true
+})
 
 // Enable offline persistence
 enableIndexedDbPersistence(db).catch((err) => {

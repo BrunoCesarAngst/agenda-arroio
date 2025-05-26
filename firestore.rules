@@ -1,0 +1,90 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Funções auxiliares
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.tipo == 'admin';
+    }
+
+    function isEmpresaOwner(empresaId) {
+      return get(/databases/$(database)/documents/empresas/$(empresaId)).data.proprietarioId == request.auth.uid;
+    }
+
+    // Validações de campos
+    function hasRequiredFields(data, required) {
+      return required.hasAll(data.keys());
+    }
+
+    // Coleção: usuarios
+    match /usuarios/{userId} {
+      allow read: if isAuthenticated() && (isOwner(userId) || isAdmin());
+      allow create: if isAuthenticated()
+        && isOwner(userId)
+        && hasRequiredFields(request.resource.data, ['nome', 'email', 'tipo', 'ativo', 'criadoEm']);
+      allow update: if isAuthenticated()
+        && (isOwner(userId) || isAdmin())
+        && hasRequiredFields(request.resource.data, ['nome', 'email', 'tipo', 'ativo']);
+      allow delete: if isAuthenticated() && isAdmin();
+    }
+
+    // Coleção: empresas
+    match /empresas/{empresaId} {
+      allow read: if true; // Público
+      allow create: if isAuthenticated()
+        && (isAdmin() || request.resource.data.proprietarioId == request.auth.uid)
+        && hasRequiredFields(request.resource.data, ['nome', 'descricao', 'endereco', 'proprietarioId', 'ativo', 'criadoEm']);
+      allow update: if isAuthenticated()
+        && (isAdmin() || isEmpresaOwner(empresaId))
+        && hasRequiredFields(request.resource.data, ['nome', 'descricao', 'endereco', 'ativo']);
+      allow delete: if isAuthenticated() && isAdmin();
+    }
+
+    // Coleção: servicos
+    match /servicos/{servicoId} {
+      allow read: if true; // Público
+      allow create: if isAuthenticated()
+        && (isAdmin() || isEmpresaOwner(request.resource.data.empresaId))
+        && hasRequiredFields(request.resource.data, ['nome', 'descricao', 'emoji', 'empresaId', 'ativo', 'criadoEm']);
+      allow update: if isAuthenticated()
+        && (isAdmin() || isEmpresaOwner(resource.data.empresaId))
+        && hasRequiredFields(request.resource.data, ['nome', 'descricao', 'emoji', 'ativo']);
+      allow delete: if isAuthenticated()
+        && (isAdmin() || isEmpresaOwner(resource.data.empresaId));
+    }
+
+    // Coleção: promocoes
+    match /promocoes/{promoId} {
+      allow read: if true; // Público
+      allow create: if isAuthenticated()
+        && (isAdmin() || isEmpresaOwner(request.resource.data.empresaId))
+        && hasRequiredFields(request.resource.data, ['titulo', 'descricao', 'validade', 'empresaId', 'ativo', 'criadoEm']);
+      allow update: if isAuthenticated()
+        && (isAdmin() || isEmpresaOwner(resource.data.empresaId))
+        && hasRequiredFields(request.resource.data, ['titulo', 'descricao', 'validade', 'ativo']);
+      allow delete: if isAuthenticated()
+        && (isAdmin() || isEmpresaOwner(resource.data.empresaId));
+    }
+
+    // Coleção: agendamentos
+    match /agendamentos/{agendamentoId} {
+      allow create: if isAuthenticated()
+        && (isOwner(request.resource.data.clienteId) || isEmpresaOwner(request.resource.data.empresaId))
+        && hasRequiredFields(request.resource.data, ['clienteId', 'empresaId', 'servicoId', 'data', 'hora', 'status', 'criadoEm']);
+      allow update: if isAuthenticated()
+        && (isOwner(resource.data.clienteId) || isEmpresaOwner(resource.data.empresaId))
+        && hasRequiredFields(request.resource.data, ['status']);
+      allow delete: if isAuthenticated()
+        && (isOwner(resource.data.clienteId) || isEmpresaOwner(resource.data.empresaId));
+      allow read: if isAuthenticated()
+        && (isOwner(resource.data.clienteId) || isEmpresaOwner(resource.data.empresaId));
+    }
+  }
+}
