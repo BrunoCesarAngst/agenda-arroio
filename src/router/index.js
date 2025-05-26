@@ -1,13 +1,16 @@
 // router/index.js
 
-import { getAuth } from 'firebase/auth'
 import { createRouter, createWebHistory } from 'vue-router'
+import { auth } from '../services/firebase'
 
 // Importe suas páginas/components principais
 import WelcomePage from '../WelcomePage.vue'
+import CadastroPage from '../pages/CadastroComplementar.vue'
 import Home from '../pages/Home.vue'
 import LoginPage from '../pages/LoginPage.vue'
 // Adicione outras páginas quando quiser
+
+const devMode = import.meta.env.VITE_DEV_MODE === 'true'
 
 const routes = [
   {
@@ -28,6 +31,13 @@ const routes = [
     component: LoginPage,
     meta: { requiresAuth: false }
   },
+  {
+    path: '/Cadastro',
+    name: 'Cadastro',
+    component: CadastroPage,
+    meta: { requiresAuth: false }
+  },
+
   // Adicione outras rotas conforme for criando as telas!
 ]
 
@@ -37,11 +47,20 @@ const router = createRouter({
 })
 
 // Navigation guard
-router.beforeEach((to, from, next) => {
-  const auth = getAuth()
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
+router.beforeEach(async (to, from, next) => {
+  // Modo desenvolvedor: ignora todas as proteções
+  if (devMode) {
+    console.log('🔧 Modo desenvolvedor ativo - Ignorando proteções de rota')
+    next()
+    return
+  }
 
-  if (requiresAuth && !auth.currentUser) {
+  // Regras normais para produção
+  const requiresAuth = to.meta.requiresAuth
+  const user = auth.currentUser
+
+  if (requiresAuth && !user) {
+    console.log('🔒 Rota protegida - Redirecionando para login')
     next('/login')
   } else {
     next()
