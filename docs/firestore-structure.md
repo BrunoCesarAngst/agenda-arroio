@@ -1,10 +1,6 @@
-Claro, Bruno! Segue um arquivo **.md** detalhando **cada parte das regras de segurança** para o seu Firestore, já pronto para copiar e colar e usar como documentação do seu projeto.
-A estrutura está explicando as funções, cada coleção, os motivos das permissões e exemplos de uso.
+# 🔒 Estrutura e Regras de Segurança do Firestore
 
----
-
-````markdown
-# Regras de Segurança do Firestore - Agenda Arroio do Sal
+> Documentação detalhada da estrutura do banco de dados e regras de segurança do Firebase Firestore para o projeto Agenda Arroio do Sal.
 
 ## Visão Geral
 
@@ -28,14 +24,59 @@ function isOwner(userId) {
 }
 
 function isAdmin() {
-  // Busca o usuário atual na coleção 'usuarios' e verifica se o campo tipo é 'admin'
   return get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.tipo == 'admin';
 }
-````
+```
 
 * **isAuthenticated**: Retorna `true` se o usuário estiver autenticado.
 * **isOwner(userId)**: Retorna `true` se o usuário autenticado for o dono do dado.
 * **isAdmin()**: Retorna `true` se o usuário autenticado for do tipo admin.
+
+---
+
+## Coleção: empresas (PÚBLICO)
+
+```javascript
+match /empresas/{empresaId} {
+  // Leitura: qualquer um pode ler (mesmo não autenticado)
+  allow read: if true;
+
+  // Escrita: só usuários autenticados podem criar/editar/deletar
+  // (apenas admins ou o proprietário da empresa)
+  allow create: if request.auth != null
+    && (get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.tipo == 'admin'
+    || request.auth.uid == request.resource.data.proprietarioId);
+
+  allow update, delete: if request.auth != null
+    && (get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.tipo == 'admin'
+    || request.auth.uid == resource.data.proprietarioId);
+}
+```
+
+* **Qualquer pessoa pode buscar e listar empresas.**
+* **Só o proprietário cadastrado (campo `proprietarioId` no documento) ou admin pode criar/editar/deletar.**
+
+---
+
+## Coleção: usuarios (PRIVADO)
+
+```javascript
+match /usuarios/{userId} {
+  // Leitura: só autenticado pode ler dados de usuário
+  allow read: if request.auth != null
+    && (request.auth.uid == userId
+    || get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.tipo == 'admin');
+
+  // Escrita: só o próprio usuário ou admin pode alterar
+  allow write: if request.auth != null
+    && (request.auth.uid == userId
+    || get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.tipo == 'admin');
+}
+```
+
+* **Só o próprio usuário pode ler seus dados pessoais.**
+* **Somente o próprio usuário ou admin pode criar/editar/deletar seu perfil.**
+* **Outros usuários e visitantes não podem ver nada dessa coleção.**
 
 ---
 
@@ -72,35 +113,6 @@ match /servicos/{servicoId} {
 * **Leitura**: Qualquer um pode ver os serviços.
 * **Criação**: Apenas usuários autenticados podem criar serviços vinculados à própria empresa ou sendo admin.
 * **Atualizar/Deletar**: Apenas admin ou o dono da empresa vinculada pode alterar/deletar.
-
----
-
-## Coleção: empresas
-
-```javascript
-match /empresas/{empresaId} {
-  allow read: if true;
-  allow write: if isAuthenticated() &&
-    (isAdmin() || request.auth.uid == resource.data.proprietarioId);
-}
-```
-
-* **Leitura**: Todos podem ver as empresas cadastradas.
-* **Escrita**: Apenas o admin ou o proprietário (campo `proprietarioId` no documento da empresa) pode editar/deletar.
-
----
-
-## Coleção: usuarios
-
-```javascript
-match /usuarios/{userId} {
-  allow read: if isAuthenticated();
-  allow write: if isAuthenticated() && (isOwner(userId) || isAdmin());
-}
-```
-
-* **Leitura**: Apenas usuários autenticados podem ler dados de usuários.
-* **Escrita**: O próprio usuário ou um admin pode alterar dados de usuário.
 
 ---
 
