@@ -74,9 +74,8 @@
 </template>
 
 <script setup>
-import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore'
 import { onMounted, ref } from 'vue'
-import { db } from '../services/firebase'
+import { db, getFirebaseFirestore } from '../services/firebase'
 
 const promocoes = ref([])
 const servicosPopulares = ref([])
@@ -89,6 +88,7 @@ const formatDate = (date) => {
 
 const fetchPromocoes = async () => {
   try {
+    const { collection, getDocs, limit, orderBy, query, where } = await getFirebaseFirestore()
     const hoje = new Date()
     const q = query(
       collection(db, 'promocoes'),
@@ -110,6 +110,7 @@ const fetchPromocoes = async () => {
 
 const fetchServicosPopulares = async () => {
   try {
+    const { collection, getDocs, limit, orderBy, query, where } = await getFirebaseFirestore()
     const q = query(
       collection(db, 'servicos'),
       where('ativo', '==', true),
