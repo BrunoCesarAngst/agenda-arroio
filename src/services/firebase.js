@@ -54,4 +54,10 @@ onAuthStateChanged(auth, (user) => {
   }
 })
 
-export { app, auth, db, storage }
+// Exporta apenas o necessário inicialmente
+export { auth, db, storage }
+
+// Exporta funções específicas do Firebase sob demanda
+export const getFirebaseAuth = () => import('firebase/auth')
+export const getFirebaseFirestore = () => import('firebase/firestore')
+export const getFirebaseStorage = () => import('firebase/storage')
