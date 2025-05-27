@@ -9,18 +9,11 @@
         <div class="flex-grow border-t"></div>
       </div>
       <LoginGoogle />
-      <div class="my-2 flex items-center">
-        <div class="flex-grow border-t"></div>
-        <span class="mx-2 text-gray-500">ou</span>
-        <div class="flex-grow border-t"></div>
-      </div>
-      <LoginTelefone />
     </div>
   </div>
 </template>
 
 <script setup>
-import LoginEmail from '../components/auth/LoginEmail.vue'
-import LoginGoogle from '../components/auth/LoginGoogle.vue'
-import LoginTelefone from '../components/auth/LoginTelefone.vue'
+import LoginEmail from '../components/auth/LoginEmail.vue';
+import LoginGoogle from '../components/auth/LoginGoogle.vue';
 </script>
