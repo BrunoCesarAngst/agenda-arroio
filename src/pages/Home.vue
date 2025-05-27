@@ -1,9 +1,19 @@
 <template>
   <div class="min-h-screen bg-gradient-to-b from-blue-100 to-white flex flex-col">
     <!-- Header -->
-    <header class="bg-blue-700 text-white p-4 rounded-b-3xl shadow-lg mb-2">
-      <h1 class="text-2xl font-bold">Agenda Arroio do Sal</h1>
-      <p class="text-sm mt-1">Sua agenda local para serviços, profissionais e promoções!</p>
+    <header class="bg-blue-700 text-white p-4 rounded-b-3xl shadow-lg mb-2 flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-bold">Agenda Arroio do Sal</h1>
+        <p class="text-sm mt-1">Sua agenda local para serviços, profissionais e promoções!</p>
+        <p v-if="userName" class="mt-2 text-base font-semibold">Fique a vontade, {{ userName }}!</p>
+      </div>
+      <button
+        v-if="isLogged"
+        @click="logout"
+        class="ml-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm font-semibold"
+      >
+        Sair
+      </button>
     </header>
 
     <!-- Ações rápidas -->
@@ -74,13 +84,18 @@
 </template>
 
 <script setup>
+import { signOut } from 'firebase/auth'
 import { onMounted, ref } from 'vue'
-import { db, getFirebaseFirestore } from '../services/firebase'
+import { useRouter } from 'vue-router'
+import { auth, db, getFirebaseFirestore } from '../services/firebase'
 
+const router = useRouter()
 const promocoes = ref([])
 const servicosPopulares = ref([])
 const loading = ref(true)
 const error = ref('')
+const isLogged = ref(false)
+const userName = ref('')
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('pt-BR')
@@ -126,6 +141,34 @@ const fetchServicosPopulares = async () => {
     console.error('Erro ao buscar serviços:', err)
     error.value = 'Não foi possível carregar os serviços. Tente novamente mais tarde.'
   }
+}
+
+onMounted(() => {
+  auth.onAuthStateChanged(async user => {
+    isLogged.value = !!user
+    if (user) {
+      // Tenta buscar o nome do usuário no Firestore
+      try {
+        const { doc, getDoc, getFirestore } = await getFirebaseFirestore()
+        const db = getFirestore()
+        const userDoc = await getDoc(doc(db, 'usuarios', user.uid))
+        if (userDoc.exists()) {
+          userName.value = userDoc.data().nome || user.displayName || user.email
+        } else {
+          userName.value = user.displayName || user.email
+        }
+      } catch (e) {
+        userName.value = user.displayName || user.email
+      }
+    } else {
+      userName.value = ''
+    }
+  })
+})
+
+async function logout() {
+  await signOut(auth)
+  router.push('/login')
 }
 
 onMounted(async () => {
