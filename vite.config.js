@@ -27,16 +27,18 @@ export default defineConfig({
         manualChunks: {
           'vendor': [
             'vue',
-            'vue-router',
-            'firebase/app',
-            'firebase/auth',
-            'firebase/firestore',
-            'firebase/storage'
+            'vue-router'
           ],
-          'firebase': [
-            'firebase/app',
-            'firebase/auth',
-            'firebase/firestore',
+          'firebase-core': [
+            'firebase/app'
+          ],
+          'firebase-auth': [
+            'firebase/auth'
+          ],
+          'firebase-firestore': [
+            'firebase/firestore'
+          ],
+          'firebase-storage': [
             'firebase/storage'
           ]
         },
