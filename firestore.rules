@@ -20,7 +20,7 @@ service cloud.firestore {
 
     // Validações de campos
     function hasRequiredFields(data, required) {
-      return required.hasAll(data.keys());
+      return data.keys().hasAll(required);
     }
 
     // Coleção: usuarios
