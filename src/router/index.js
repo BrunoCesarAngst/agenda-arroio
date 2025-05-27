@@ -8,8 +8,10 @@ import { auth } from '../services/firebase'
 import WelcomePage from '../WelcomePage.vue'
 import CadastroPage from '../pages/CadastroComplementar.vue'
 import DashboardPage from '../pages/Dashboard.vue'
+import DashboardProfissional from '../pages/DashboardProfissional.vue'
 import Home from '../pages/Home.vue'
 import LoginPage from '../pages/LoginPage.vue'
+import RegisterPage from '../pages/RegisterPage.vue'
 // Adicione outras páginas quando quiser
 
 const devMode = import.meta.env.VITE_DEV_MODE === 'true'
@@ -44,6 +46,18 @@ const routes = [
     name: 'Dashboard',
     component: DashboardPage,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: RegisterPage,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/dashboard-empresa',
+    name: 'DashboardProfissional',
+    component: DashboardProfissional,
+    meta: { requiresAuth: true, onlyProfissional: true }
   }
   // Adicione outras rotas conforme for criando as telas!
 ]
@@ -57,29 +71,44 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   // Modo desenvolvedor: ignora todas as proteções
   if (devMode) {
-    console.log('🔧 Modo desenvolvedor ativo - Ignorando proteções de rota')
     next()
     return
   }
 
-  // Regras normais para produção
   const requiresAuth = to.meta.requiresAuth
+  const onlyCliente = to.meta.onlyCliente
+  const onlyProfissional = to.meta.onlyProfissional
   const user = auth.currentUser
 
   if (requiresAuth && !user) {
-    console.log('🔒 Rota protegida - Redirecionando para login')
     next('/login')
-  } else if (user && to.path !== '/cadastro') {
-    // Verifica se o usuário tem tipo definido
+    return
+  }
+
+  if (user) {
     const db = getFirestore()
     const userDoc = await getDoc(doc(db, 'usuarios', user.uid))
+    const userData = userDoc.exists() ? userDoc.data() : null
 
-    if (!userDoc.exists() || !userDoc.data().tipo) {
-      console.log('👤 Usuário sem tipo definido - Redirecionando para cadastro complementar')
-      next('/cadastro')
+    // Se não tem tipo definido, força cadastro complementar
+    if (!userData || !userData.tipo) {
+      if (to.path !== '/cadastro') {
+        next('/cadastro')
+        return
+      }
+    }
+
+    // Proteção por tipo de usuário
+    if (onlyCliente && userData.tipo !== 'cliente') {
+      next('/') // ou outra rota para não clientes
+      return
+    }
+    if (onlyProfissional && userData.tipo !== 'profissional') {
+      next('/') // ou outra rota para não profissionais
       return
     }
   }
+
   next()
 })
 

@@ -77,6 +77,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import HeaderPadrao from '../components/HeaderPadrao.vue'
 import useAuthUser from '../useAuthUser'
+import { formatDate } from '../utils'
 
 const router = useRouter()
 const { user, userData, loading } = useAuthUser()
@@ -128,10 +129,6 @@ const promocoes = ref([
   { id: 1, servico: 'Corte de Cabelo', descricao: 'Desconto especial para novos clientes!', desconto: 20, validade: '2025-06-15' },
   { id: 2, servico: 'Massagem Relaxante', descricao: 'Promoção de inverno!', desconto: 15, validade: '2025-06-30' }
 ])
-
-function formatDate(date) {
-  return new Date(date).toLocaleDateString('pt-BR')
-}
 
 function statusClass(status) {
   switch (status) {

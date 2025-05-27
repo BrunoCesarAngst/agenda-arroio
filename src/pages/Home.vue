@@ -75,6 +75,7 @@ import { useRouter } from 'vue-router'
 import HeaderPadrao from '../components/HeaderPadrao.vue'
 import { db, getFirebaseFirestore } from '../services/firebase'
 import useAuthUser from '../useAuthUser'
+import { formatDate } from '../utils'
 
 const router = useRouter()
 const promocoes = ref([])
@@ -83,10 +84,6 @@ const loading = ref(true)
 const error = ref('')
 
 const { user, userData, loading: loadingUser } = useAuthUser()
-
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('pt-BR')
-}
 
 const fetchPromocoes = async () => {
   try {
