@@ -32,10 +32,10 @@
 </template>
 
 <script setup>
-import { auth } from '../../services/firebase'
 import { signInWithEmailAndPassword } from 'firebase/auth'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { auth } from '../../services/firebase'
 
 const router = useRouter()
 const email = ref('')
@@ -50,7 +50,25 @@ const handleLogin = async () => {
     await signInWithEmailAndPassword(auth, email.value, password.value)
     router.push('/home')
   } catch (err) {
-    error.value = 'Email ou senha inválidos'
+    switch (err.code) {
+      case 'auth/user-not-found':
+        error.value = 'Usuário não encontrado'
+        break
+      case 'auth/wrong-password':
+        error.value = 'Senha incorreta'
+        break
+      case 'auth/too-many-requests':
+        error.value = 'Muitas tentativas. Tente novamente mais tarde'
+        break
+      case 'auth/invalid-email':
+        error.value = 'Email inválido'
+        break
+      case 'auth/user-disabled':
+        error.value = 'Esta conta foi desativada'
+        break
+      default:
+        error.value = 'Erro ao fazer login. Tente novamente'
+    }
     console.error('Erro no login:', err)
   } finally {
     loading.value = false

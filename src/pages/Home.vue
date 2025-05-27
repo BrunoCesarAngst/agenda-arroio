@@ -74,9 +74,9 @@
 </template>
 
 <script setup>
-import { db } from '../services/firebase'
 import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore'
 import { onMounted, ref } from 'vue'
+import { db } from '../services/firebase'
 
 const promocoes = ref([])
 const servicosPopulares = ref([])
@@ -93,6 +93,7 @@ const fetchPromocoes = async () => {
     const q = query(
       collection(db, 'promocoes'),
       where('validade', '>=', hoje),
+      where('ativo', '==', true),
       orderBy('validade', 'asc'),
       limit(4)
     )
@@ -103,7 +104,7 @@ const fetchPromocoes = async () => {
     }))
   } catch (err) {
     console.error('Erro ao buscar promoções:', err)
-    error.value = 'Erro ao carregar promoções'
+    error.value = 'Não foi possível carregar as promoções. Tente novamente mais tarde.'
   }
 }
 
@@ -111,8 +112,9 @@ const fetchServicosPopulares = async () => {
   try {
     const q = query(
       collection(db, 'servicos'),
+      where('ativo', '==', true),
       orderBy('visualizacoes', 'desc'),
-      limit(5)
+      limit(10)
     )
     const querySnapshot = await getDocs(q)
     servicosPopulares.value = querySnapshot.docs.map(doc => ({
@@ -121,17 +123,18 @@ const fetchServicosPopulares = async () => {
     }))
   } catch (err) {
     console.error('Erro ao buscar serviços:', err)
-    error.value = 'Erro ao carregar serviços populares'
+    error.value = 'Não foi possível carregar os serviços. Tente novamente mais tarde.'
   }
 }
 
 onMounted(async () => {
   try {
     loading.value = true
+    error.value = ''
     await Promise.all([fetchPromocoes(), fetchServicosPopulares()])
   } catch (err) {
     console.error('Erro ao carregar dados:', err)
-    error.value = 'Erro ao carregar dados'
+    error.value = 'Erro ao carregar dados. Tente novamente mais tarde.'
   } finally {
     loading.value = false
   }
