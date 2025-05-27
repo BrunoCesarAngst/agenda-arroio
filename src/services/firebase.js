@@ -20,23 +20,26 @@ const auth = getAuth(app)
 const db = getFirestore(app)
 const storage = getStorage(app)
 
-// Ativa AppCheck debug localmente
+// Configuração do App Check
+const appCheckConfig = {
+  provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
+  isTokenAutoRefreshEnabled: true
+}
+
+// Ativa AppCheck debug apenas em desenvolvimento
 if (import.meta.env.DEV) {
   self.FIREBASE_APPCHECK_DEBUG_TOKEN = true
 }
 
-// App Check com reCAPTCHA v3
-initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider(import.meta.env.VITE_RECAPTCHA_SITE_KEY),
-  isTokenAutoRefreshEnabled: true
-})
+// Inicializa App Check
+initializeAppCheck(app, appCheckConfig)
 
-// Enable offline persistence
+// Habilita persistência offline
 enableIndexedDbPersistence(db).catch((err) => {
   if (err.code === 'failed-precondition') {
-    console.warn('Multiple tabs open, persistence can only be enabled in one tab at a time.')
+    console.warn('Persistência offline não disponível - Múltiplas abas abertas')
   } else if (err.code === 'unimplemented') {
-    console.warn('The current browser does not support persistence.')
+    console.warn('Navegador não suporta persistência offline')
   }
 })
 

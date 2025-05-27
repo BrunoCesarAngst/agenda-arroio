@@ -1,13 +1,27 @@
 <!doctype html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + Vue</title>
+    <meta name="description" content="Agenda Arroio do Sal - Sua agenda local para serviços, profissionais e promoções" />
+    <meta name="theme-color" content="#1e40af" />
+    <meta name="robots" content="index, follow" />
+    <meta property="og:title" content="Agenda Arroio do Sal" />
+    <meta property="og:description" content="Sua agenda local para serviços, profissionais e promoções" />
+    <meta property="og:type" content="website" />
+    <title>Agenda Arroio do Sal</title>
+    <!-- Vue DevTools (apenas em desenvolvimento) -->
+    <script>
+      if (import.meta.env.DEV) {
+        const script = document.createElement('script')
+        script.src = 'https://localhost:8098'
+        document.head.appendChild(script)
+      }
+    </script>
   </head>
   <body>
-    <div id="app"></div>
+    <div id="app" role="application" aria-label="Agenda Arroio do Sal"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
