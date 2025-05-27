@@ -39,10 +39,10 @@
 </template>
 
 <script setup>
+import { addDoc, collection, doc, getDoc, getFirestore, serverTimestamp, setDoc } from 'firebase/firestore'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth } from '../services/firebase'
-import { getFirestore, doc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore'
 
 const router = useRouter()
 const db = getFirestore()
@@ -69,9 +69,10 @@ async function salvar() {
     const user = auth.currentUser
     if (!user) throw new Error('Usuário não autenticado!')
 
+    console.log('Usuário autenticado:', user)
+
     // Monta o objeto usuário
     const usuarioData = {
-      id: user.uid,
       nome: nome.value,
       telefone: telefone.value,
       email: user.email || '',
@@ -80,6 +81,8 @@ async function salvar() {
       ativo: true,
       criadoEm: serverTimestamp()
     }
+
+    console.log('usuarioData:', usuarioData)
 
     let empresaId = null
 
@@ -98,8 +101,16 @@ async function salvar() {
       usuarioData.empresaId = empresaId
     }
 
+    // Verifica se o documento já existe
+    const userDocRef = doc(db, 'usuarios', user.uid)
+    const userDocSnap = await getDoc(userDocRef)
+    if (userDocSnap.exists()) {
+      // Se for update, remove criadoEm
+      delete usuarioData.criadoEm
+    }
+
     // Salva o usuário em /usuarios
-    await setDoc(doc(db, 'usuarios', user.uid), usuarioData, { merge: true })
+    await setDoc(userDocRef, usuarioData, { merge: true })
 
     // Redireciona conforme o tipo
     if (tipo.value === 'profissional') {
