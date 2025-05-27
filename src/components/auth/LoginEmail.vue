@@ -48,7 +48,7 @@ const handleLogin = async () => {
     loading.value = true
     error.value = ''
     await signInWithEmailAndPassword(auth, email.value, password.value)
-    router.push('/home')
+    router.push('/')
   } catch (err) {
     switch (err.code) {
       case 'auth/user-not-found':

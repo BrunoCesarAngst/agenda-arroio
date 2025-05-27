@@ -1,28 +1,14 @@
 <template>
+  <HeaderPadrao />
   <div class="min-h-screen bg-gradient-to-b from-blue-100 to-white flex flex-col">
-    <!-- Header -->
-    <header class="bg-blue-700 text-white p-4 rounded-b-3xl shadow-lg mb-2 flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-bold">Agenda Arroio do Sal</h1>
-        <p class="text-sm mt-1">Sua agenda local para serviços, profissionais e promoções!</p>
-        <p v-if="userName" class="mt-2 text-base font-semibold">Fique a vontade, {{ userName }}!</p>
-      </div>
-      <button
-        v-if="isLogged"
-        @click="logout"
-        class="ml-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm font-semibold"
-      >
-        Sair
-      </button>
-    </header>
-
     <!-- Ações rápidas -->
     <div class="flex flex-col gap-4 px-4 mt-4">
-      <router-link to="/agendar" class="w-full">
-        <button class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl font-semibold text-lg shadow transition">
-          Agende um Serviço
-        </button>
-      </router-link>
+      <button
+        class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-2xl font-semibold text-lg shadow transition"
+        @click="handleAgendar"
+      >
+        Agende um Serviço
+      </button>
       <router-link to="/profissional" class="w-full">
         <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-2xl font-semibold text-lg shadow transition">
           Sou Profissional/Empresa
@@ -84,18 +70,19 @@
 </template>
 
 <script setup>
-import { signOut } from 'firebase/auth'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { auth, db, getFirebaseFirestore } from '../services/firebase'
+import HeaderPadrao from '../components/HeaderPadrao.vue'
+import { db, getFirebaseFirestore } from '../services/firebase'
+import useAuthUser from '../useAuthUser'
 
 const router = useRouter()
 const promocoes = ref([])
 const servicosPopulares = ref([])
 const loading = ref(true)
 const error = ref('')
-const isLogged = ref(false)
-const userName = ref('')
+
+const { user, userData, loading: loadingUser } = useAuthUser()
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('pt-BR')
@@ -143,32 +130,12 @@ const fetchServicosPopulares = async () => {
   }
 }
 
-onMounted(() => {
-  auth.onAuthStateChanged(async user => {
-    isLogged.value = !!user
-    if (user) {
-      // Tenta buscar o nome do usuário no Firestore
-      try {
-        const { doc, getDoc, getFirestore } = await getFirebaseFirestore()
-        const db = getFirestore()
-        const userDoc = await getDoc(doc(db, 'usuarios', user.uid))
-        if (userDoc.exists()) {
-          userName.value = userDoc.data().nome || user.displayName || user.email
-        } else {
-          userName.value = user.displayName || user.email
-        }
-      } catch (e) {
-        userName.value = user.displayName || user.email
-      }
-    } else {
-      userName.value = ''
-    }
-  })
-})
-
-async function logout() {
-  await signOut(auth)
-  router.push('/login')
+function handleAgendar() {
+  if (user.value) {
+    router.push('/dashboard')
+  } else {
+    router.push('/login')
+  }
 }
 
 onMounted(async () => {

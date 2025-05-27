@@ -11,10 +11,10 @@
 </template>
 
 <script setup>
-import { auth } from '../../services/firebase'
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { auth } from '../../services/firebase'
 
 const router = useRouter()
 const loading = ref(false)
@@ -26,7 +26,7 @@ const handleGoogleLogin = async () => {
     error.value = ''
     const provider = new GoogleAuthProvider()
     await signInWithPopup(auth, provider)
-    router.push('/home')
+    router.push('/')
   } catch (err) {
     error.value = 'Erro ao fazer login com Google'
     console.error('Erro no login com Google:', err)
