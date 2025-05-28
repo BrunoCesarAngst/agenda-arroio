@@ -9,11 +9,12 @@
       >
         Agende um Serviço
       </button>
-      <router-link to="/profissional" class="w-full">
-        <button class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-2xl font-semibold text-lg shadow transition">
+      <button
+        class="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-2xl font-semibold text-lg shadow transition"
+        @click="handleProfissional"
+      >
           Sou Profissional/Empresa
         </button>
-      </router-link>
     </div>
 
     <!-- Promoções do dia -->
@@ -130,6 +131,18 @@ const fetchServicosPopulares = async () => {
 function handleAgendar() {
   if (user.value) {
     router.push('/dashboard')
+  } else {
+    router.push('/login')
+  }
+}
+
+function handleProfissional() {
+  if (user.value) {
+    if (userData.value?.tipo === 'profissional') {
+      router.push('/dashboard-empresa')
+    } else {
+      router.push('/cadastro')
+    }
   } else {
     router.push('/login')
   }

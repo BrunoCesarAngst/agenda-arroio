@@ -58,6 +58,30 @@ const routes = [
     name: 'DashboardProfissional',
     component: DashboardProfissional,
     meta: { requiresAuth: true, onlyProfissional: true }
+  },
+  {
+    path: '/agendamentos',
+    name: 'Agendamentos',
+    component: () => import('../pages/profissional/Agendamentos.vue'),
+    meta: { requiresAuth: true, onlyProfissional: true }
+  },
+  {
+    path: '/servicos',
+    name: 'Servicos',
+    component: () => import('../pages/profissional/Servicos.vue'),
+    meta: { requiresAuth: true, onlyProfissional: true }
+  },
+  {
+    path: '/promocoes',
+    name: 'Promocoes',
+    component: () => import('../pages/profissional/Promocoes.vue'),
+    meta: { requiresAuth: true, onlyProfissional: true }
+  },
+  {
+    path: '/perfil',
+    name: 'PerfilEmpresa',
+    component: () => import('../pages/profissional/Perfil.vue'),
+    meta: { requiresAuth: true, onlyProfissional: true }
   }
   // Adicione outras rotas conforme for criando as telas!
 ]
