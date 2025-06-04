@@ -46,3 +46,5 @@ build
 # Outros
 .DS_Store
 Thumbs.db
+
+credenciais/*.json
