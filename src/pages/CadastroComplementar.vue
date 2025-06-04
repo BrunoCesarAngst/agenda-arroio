@@ -28,6 +28,34 @@
           <!-- Adicione outros campos se quiser -->
         </template>
 
+        <!-- Campos de endereço para cliente -->
+        <template v-if="tipo === 'cliente'">
+          <div><label>Rua</label><input v-model="endereco.rua" required class="input" /></div>
+          <div><label>Número</label><input v-model="endereco.numero" required class="input" /></div>
+          <div><label>Bairro</label><input v-model="endereco.bairro" required class="input" /></div>
+          <div><label>Complemento</label><input v-model="endereco.complemento" class="input" /></div>
+          <div><label>Referência</label><input v-model="endereco.referencia" class="input" /></div>
+          <div><label>CEP</label><input v-model="endereco.cep" class="input" /></div>
+          <div><label>Cidade</label><input v-model="endereco.cidade" required class="input" value="Arroio do Sal" readonly /></div>
+          <div><label>Estado</label><input v-model="endereco.estado" required class="input" value="RS" readonly /></div>
+          <div><label>Nome do contato</label><input v-model="endereco.contato.nome" class="input" /></div>
+          <div><label>Telefone do contato</label><input v-model="endereco.contato.telefone" class="input" /></div>
+        </template>
+
+        <!-- Campos de endereço para empresa -->
+        <template v-if="tipo === 'profissional'">
+          <input v-model="empresaEndereco.rua" type="text" placeholder="Rua" required class="input" />
+          <input v-model="empresaEndereco.numero" type="text" placeholder="Número" required class="input" />
+          <input v-model="empresaEndereco.complemento" type="text" placeholder="Complemento" class="input" />
+          <input v-model="empresaEndereco.bairro" type="text" placeholder="Bairro" required class="input" />
+          <input v-model="empresaEndereco.cidade" type="text" placeholder="Cidade" required class="input" value="Arroio do Sal" readonly />
+          <input v-model="empresaEndereco.estado" type="text" placeholder="Estado" required class="input" value="RS" readonly />
+          <input v-model="empresaEndereco.cep" type="text" placeholder="CEP" class="input" />
+          <input v-model="empresaEndereco.referencia" type="text" placeholder="Referência" class="input" />
+          <input v-model="empresaEndereco.contato.nome" type="text" placeholder="Nome do contato" class="input" />
+          <input v-model="empresaEndereco.contato.telefone" type="text" placeholder="Telefone do contato" class="input" />
+        </template>
+
         <button :disabled="salvando" type="submit" class="bg-blue-600 w-full py-2 text-white rounded font-bold hover:bg-blue-700">
           {{ salvando ? 'Salvando...' : 'Salvar' }}
         </button>
@@ -55,6 +83,34 @@ const empresa = ref({
   descricao: '',
   endereco: ''
 })
+const endereco = ref({
+  rua: '',
+  numero: '',
+  complemento: '',
+  bairro: '',
+  cidade: 'Arroio do Sal',
+  estado: 'RS',
+  cep: '',
+  referencia: '',
+  contato: {
+    nome: '',
+    telefone: ''
+  }
+})
+const empresaEndereco = ref({
+  rua: '',
+  numero: '',
+  complemento: '',
+  bairro: '',
+  cidade: 'Arroio do Sal',
+  estado: 'RS',
+  cep: '',
+  referencia: '',
+  contato: {
+    nome: '',
+    telefone: ''
+  }
+})
 
 const erro = ref('')
 const salvando = ref(false)
@@ -79,7 +135,8 @@ async function salvar() {
       tipo: tipo.value,
       foto: user.photoURL || '',
       ativo: true,
-      criadoEm: serverTimestamp()
+      criadoEm: serverTimestamp(),
+      endereco: endereco.value
     }
 
     console.log('usuarioData:', usuarioData)
@@ -91,7 +148,7 @@ async function salvar() {
       const empresaData = {
         nome: empresa.value.nome,
         descricao: empresa.value.descricao,
-        endereco: empresa.value.endereco,
+        endereco: empresaEndereco.value,
         proprietarioId: user.uid,
         ativo: true,
         criadoEm: serverTimestamp()

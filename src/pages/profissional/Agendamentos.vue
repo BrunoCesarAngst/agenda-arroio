@@ -1,92 +1,77 @@
 <template>
-  <header class="bg-gradient-to-r from-blue-800 to-blue-600 text-white p-6 rounded-b-3xl shadow-xl mb-4">
-    <div class="max-w-7xl mx-auto">
-      <!-- Informações da Empresa -->
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center space-x-6">
-          <!-- Logo/Ícone da Empresa -->
-          <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-            <span class="text-3xl">🏢</span>
-          </div>
-
-          <!-- Informações da Empresa -->
-          <div>
-            <h1 class="text-2xl font-bold tracking-tight">{{ empresa?.nome || 'Carregando...' }}</h1>
-            <div class="mt-2 space-y-1">
-              <p class="text-blue-100 text-sm flex items-center">
-                <span class="mr-2">📍</span>
-                {{ empresa?.endereco }}
-              </p>
-              <p class="text-blue-100 text-sm flex items-center">
-                <span class="mr-2">📝</span>
-                {{ empresa?.descricao }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Botão Sair -->
-        <button
-          @click="logout"
-          class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl backdrop-blur-sm transition-all duration-200 flex items-center space-x-2"
-        >
-          <span>Sair</span>
-          <span>🚪</span>
-        </button>
-      </div>
-
-      <!-- Navegação -->
-      <nav class="flex items-center space-x-4 border-t border-blue-500/30 pt-4">
-        <router-link
-          to="/dashboard-empresa"
-          class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-          :class="[$route.path === '/dashboard-empresa' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10']"
-        >
-          <span>📊</span>
-          <span>Dashboard</span>
-        </router-link>
-
-        <router-link
-          to="/agendamentos"
-          class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-          :class="[$route.path === '/agendamentos' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10']"
-        >
-          <span>📅</span>
-          <span>Agendamentos</span>
-        </router-link>
-
-        <router-link
-          to="/servicos"
-          class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-          :class="[$route.path === '/servicos' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10']"
-        >
-          <span>💇</span>
-          <span>Serviços</span>
-        </router-link>
-
-        <router-link
-          to="/promocoes"
-          class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-          :class="[$route.path === '/promocoes' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10']"
-        >
-          <span>🎁</span>
-          <span>Promoções</span>
-        </router-link>
-
-        <router-link
-          to="/perfil"
-          class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-          :class="[$route.path === '/perfil' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10']"
-        >
-          <span>👤</span>
-          <span>Perfil</span>
-        </router-link>
-      </nav>
-    </div>
-  </header>
-
+  <HeaderProfissional :empresa="empresa" />
   <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white pt-8 flex flex-col items-center">
     <div class="w-full max-w-3xl space-y-8">
+      <!-- Botão para adicionar cliente externo -->
+      <div class="flex justify-end mb-4">
+        <button
+          @click="mostrarModalCliente = true"
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+        >
+          + Adicionar novo cliente
+        </button>
+      </div>
+      <!-- Botão para novo agendamento -->
+      <div class="flex justify-end mb-4">
+        <button
+          @click="abrirModalAgendamento"
+          class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition"
+        >
+          + Novo Agendamento
+        </button>
+      </div>
+      <!-- Modal de cadastro de cliente externo -->
+      <div v-if="mostrarModalCliente" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md relative">
+          <button
+            @click="mostrarModalCliente = false"
+            class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl"
+            aria-label="Fechar"
+          >×</button>
+          <h2 class="text-lg font-bold mb-4 text-blue-800">Adicionar Cliente Externo</h2>
+          <AdicionarClienteExterno @close="mostrarModalCliente = false" />
+        </div>
+      </div>
+      <!-- Modal de novo agendamento -->
+      <div v-if="mostrarModalAgendamento" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div class="bg-white rounded-xl p-6 w-full max-w-md relative">
+          <button @click="mostrarModalAgendamento = false" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl" aria-label="Fechar">×</button>
+          <h2 class="text-lg font-bold mb-4 text-blue-800">Novo Agendamento</h2>
+          <form @submit.prevent="criarAgendamento" class="space-y-4">
+            <!-- Feedbacks para clientes -->
+            <div v-if="carregandoClientes" class="text-gray-500 text-center">Carregando clientes...</div>
+            <div v-if="erroClientes" class="text-red-500 text-center">{{ erroClientes }}</div>
+            <div v-if="!carregandoClientes && clientes.length === 0" class="text-red-500 text-center">Nenhum cliente encontrado para esta empresa.</div>
+            <div>
+              <label class="block text-sm">Cliente</label>
+              <select v-model="selectedCliente" required class="input">
+                <option v-for="c in clientes" :key="c.id + c.tipo" :value="c">{{ c.nome }} ({{ c.tipo === 'usuario' ? 'Interno' : 'Externo' }})</option>
+              </select>
+            </div>
+            <!-- Feedbacks para serviços -->
+            <div v-if="carregandoServicos" class="text-gray-500 text-center">Carregando serviços...</div>
+            <div v-if="erroServicos" class="text-red-500 text-center">{{ erroServicos }}</div>
+            <div v-if="!carregandoServicos && servicos.length === 0" class="text-red-500 text-center">Nenhum serviço cadastrado para esta empresa.</div>
+            <div>
+              <label class="block text-sm">Serviço</label>
+              <select v-model="selectedServico" required class="input">
+                <option v-for="s in servicos" :key="s.id" :value="s">{{ s.nome }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm">Data</label>
+              <input v-model="dataSelecionada" type="date" required class="input" />
+            </div>
+            <div>
+              <label class="block text-sm">Hora</label>
+              <input v-model="horaSelecionada" type="time" required class="input" />
+            </div>
+            <p v-if="agendamentoErro" class="text-red-500 text-sm">{{ agendamentoErro }}</p>
+            <p v-if="sucessoAgendamento" class="text-green-600 text-center">{{ sucessoAgendamento }}</p>
+            <button class="btn-primary w-full">Criar Agendamento</button>
+          </form>
+        </div>
+      </div>
       <div class="bg-white p-6 rounded-xl shadow">
         <h3 class="text-lg font-bold mb-4 text-blue-700">Agendamentos Recebidos</h3>
         <div v-if="loading" class="text-center py-4">
@@ -124,9 +109,11 @@
 
 <script setup>
 import { signOut } from 'firebase/auth'
-import { collection, doc, getDoc, getDocs, getFirestore, orderBy, query, updateDoc, where } from 'firebase/firestore'
+import { addDoc, collection, doc, getDoc, getDocs, getFirestore, orderBy, query, serverTimestamp, updateDoc, where } from 'firebase/firestore'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import AdicionarClienteExterno from '../../components/AdicionarClienteExterno.vue'
+import HeaderProfissional from '../../components/HeaderProfissional.vue'
 import { auth } from '../../services/firebase'
 import useAuthUser from '../../useAuthUser'
 import { formatDate } from '../../utils'
@@ -142,6 +129,21 @@ const empresa = ref(null)
 const agendamentos = ref([])
 const loading = ref(true)
 const error = ref('')
+
+const mostrarModalCliente = ref(false)
+const mostrarModalAgendamento = ref(false)
+const clientes = ref([])
+const servicos = ref([])
+const selectedCliente = ref(null)
+const selectedServico = ref(null)
+const dataSelecionada = ref('')
+const horaSelecionada = ref('')
+const agendamentoErro = ref('')
+const carregandoClientes = ref(false)
+const erroClientes = ref('')
+const carregandoServicos = ref(false)
+const erroServicos = ref('')
+const sucessoAgendamento = ref('')
 
 async function carregarDadosEmpresa() {
   try {
@@ -163,6 +165,7 @@ async function carregarDadosEmpresa() {
 
 async function carregarAgendamentos() {
   try {
+    console.log('userData:', userData.value)
     if (!userData.value?.empresaId) {
       throw new Error('Empresa não encontrada')
     }
@@ -177,34 +180,54 @@ async function carregarAgendamentos() {
     )
 
     const querySnapshot = await getDocs(q)
+    console.log('querySnapshot:', querySnapshot.docs)
     const agendamentosData = []
 
     // Processa cada agendamento
-    for (const doc of querySnapshot.docs) {
-      const agendamento = doc.data()
+    for (const docSnap of querySnapshot.docs) {
+      const agendamento = docSnap.data();
+      console.log('Processando agendamento:', docSnap.id, agendamento);
 
       // Busca dados do serviço
-      const servicoDoc = await getDoc(doc(db, 'servicos', agendamento.servicoId))
-      const servico = servicoDoc.exists() ? servicoDoc.data() : null
+      let servicoNome = 'Serviço não encontrado';
+      try {
+        const servicoDoc = await getDoc(doc(db, 'servicos', agendamento.servicoId));
+        if (servicoDoc.exists()) servicoNome = servicoDoc.data().nome;
+        else console.warn('Serviço não encontrado para ID:', agendamento.servicoId);
+      } catch (e) {
+        console.error('Erro ao buscar serviço:', agendamento.servicoId, e);
+      }
 
       // Busca dados do cliente
-      const clienteDoc = await getDoc(doc(db, 'usuarios', agendamento.clienteId))
-      const cliente = clienteDoc.exists() ? clienteDoc.data() : null
+      let clienteNome = 'Cliente não encontrado';
+      try {
+        if (agendamento.clienteTipo === 'externo') {
+          const clienteDoc = await getDoc(doc(db, 'clientes_externos', agendamento.clienteId));
+          if (clienteDoc.exists()) clienteNome = clienteDoc.data().nome;
+          else console.warn('Cliente externo não encontrado para ID:', agendamento.clienteId);
+        } else {
+          const clienteDoc = await getDoc(doc(db, 'usuarios', agendamento.clienteId));
+          if (clienteDoc.exists()) clienteNome = clienteDoc.data().nome;
+          else console.warn('Cliente interno não encontrado para ID:', agendamento.clienteId);
+        }
+      } catch (e) {
+        console.error('Erro ao buscar cliente:', agendamento.clienteId, e);
+      }
 
       agendamentosData.push({
-        id: doc.id,
-        servico: servico?.nome || 'Serviço não encontrado',
-        cliente: cliente?.nome || 'Cliente não encontrado',
+        id: docSnap.id,
+        servico: servicoNome,
+        cliente: clienteNome,
         data: agendamento.data,
         hora: agendamento.hora,
         status: agendamento.status
-      })
+      });
     }
 
     agendamentos.value = agendamentosData
   } catch (err) {
-    console.error('Nenhum agendamento encontrado.:', err)
-    error.value = 'Nenhum agendamento encontrado.'
+    console.error('Erro ao carregar agendamentos:', err)
+    error.value = 'Erro ao carregar agendamentos: ' + (err.message || err)
   }
 }
 
@@ -258,19 +281,105 @@ function logout() {
   router.push('/login')
 }
 
-onMounted(async () => {
+// Buscar clientes internos e externos
+async function carregarClientes() {
+  carregandoClientes.value = true
+  erroClientes.value = ''
+  clientes.value = []
   try {
+    // Clientes internos
+    const usuariosSnap = await getDocs(query(collection(db, 'usuarios'), where('tipo', '==', 'cliente')))
+    usuariosSnap.forEach(doc => {
+      clientes.value.push({ id: doc.id, nome: doc.data().nome, tipo: 'usuario' })
+    })
+    // Clientes externos da empresa
+    if (userData.value?.empresaId) {
+      const externosSnap = await getDocs(query(collection(db, 'clientes_externos'), where('empresaId', '==', userData.value.empresaId)))
+      externosSnap.forEach(doc => {
+        clientes.value.push({ id: doc.id, nome: doc.data().nome, tipo: 'externo' })
+      })
+    }
+  } catch (e) {
+    erroClientes.value = 'Erro ao buscar clientes: ' + (e.message || e)
+  } finally {
+    carregandoClientes.value = false
+  }
+}
+
+// Buscar serviços da empresa
+async function carregarServicosAgendamento() {
+  carregandoServicos.value = true
+  erroServicos.value = ''
+  servicos.value = []
+  try {
+    if (userData.value?.empresaId) {
+      const servicosSnap = await getDocs(query(collection(db, 'servicos'), where('empresaId', '==', userData.value.empresaId)))
+      servicosSnap.forEach(doc => {
+        servicos.value.push({ id: doc.id, nome: doc.data().nome })
+      })
+    }
+  } catch (e) {
+    erroServicos.value = 'Erro ao buscar serviços: ' + (e.message || e)
+  } finally {
+    carregandoServicos.value = false
+  }
+}
+
+function abrirModalAgendamento() {
+  agendamentoErro.value = ''
+  sucessoAgendamento.value = ''
+  selectedCliente.value = null
+  selectedServico.value = null
+  dataSelecionada.value = ''
+  horaSelecionada.value = ''
+  mostrarModalAgendamento.value = true
+  carregarClientes()
+  carregarServicosAgendamento()
+}
+
+async function criarAgendamento() {
+  agendamentoErro.value = ''
+  sucessoAgendamento.value = ''
+  if (!selectedCliente.value || !selectedServico.value || !dataSelecionada.value || !horaSelecionada.value) {
+    agendamentoErro.value = 'Preencha todos os campos.'
+    return
+  }
+  try {
+    const novoAgendamento = {
+      clienteId: selectedCliente.value.id,
+      clienteTipo: selectedCliente.value.tipo,
+      empresaId: userData.value.empresaId,
+      profissionalId: user.value.uid,
+      servicoId: selectedServico.value.id,
+      data: dataSelecionada.value,
+      hora: horaSelecionada.value,
+      status: 'pendente',
+      criadoEm: serverTimestamp()
+    }
+    await addDoc(collection(db, 'agendamentos'), novoAgendamento)
+    sucessoAgendamento.value = 'Agendamento criado com sucesso!'
+    mostrarModalAgendamento.value = false
+    await carregarAgendamentos()
+  } catch (e) {
+    agendamentoErro.value = 'Erro ao criar agendamento: ' + (e.message || e)
+  }
+}
+
+onMounted(async () => {
+  if (userData.value && userData.value.empresaId) {
     loading.value = true
     error.value = ''
-    await Promise.all([
-      carregarDadosEmpresa(),
-      carregarAgendamentos()
-    ])
-  } catch (err) {
-    console.error('Erro ao carregar dados:', err)
-    error.value = 'Erro ao carregar dados'
-  } finally {
-    loading.value = false
+    try {
+      await Promise.all([
+        carregarDadosEmpresa(),
+        carregarAgendamentos()
+      ])
+    } catch (err) {
+      console.error('Erro ao carregar dados:', err)
+      error.value = 'Erro ao carregar dados'
+    } finally {
+      loading.value = false
+    }
   }
 })
 </script>

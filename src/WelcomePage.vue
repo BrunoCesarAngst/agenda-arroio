@@ -33,6 +33,11 @@
           Conhecer os Serviços
         </button>
       </router-link>
+      <router-link to="/admin-login" class="w-full">
+        <button class="w-full bg-white text-blue-700 border border-blue-700 py-3 rounded-2xl font-semibold text-lg shadow transition">
+          Área Administrativa
+        </button>
+      </router-link>
     </div>
 
     <!-- Rodapé -->
@@ -59,3 +64,74 @@ onMounted(() => {
   })
 })
 </script>
+
+<style scoped>
+.welcome-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.welcome-content {
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 500px;
+  width: 90%;
+}
+
+h1 {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+p {
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #45a049;
+}
+
+.btn-secondary {
+  background-color: #2196F3;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #1976D2;
+}
+
+.btn-link {
+  color: #666;
+  text-decoration: underline;
+}
+
+.btn-link:hover {
+  color: #333;
+}
+</style>

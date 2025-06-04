@@ -6,13 +6,23 @@ import { auth } from '../services/firebase'
 
 // Importe suas páginas/components principais
 import WelcomePage from '../WelcomePage.vue'
+import PrivacyPolicy from '../components/PrivacyPolicy.vue'
+import AdminLogin from '../pages/AdminLogin.vue'
 import CadastroPage from '../pages/CadastroComplementar.vue'
 import DashboardPage from '../pages/Dashboard.vue'
 import DashboardProfissional from '../pages/DashboardProfissional.vue'
 import Home from '../pages/Home.vue'
 import LoginPage from '../pages/LoginPage.vue'
 import RegisterPage from '../pages/RegisterPage.vue'
-// Adicione outras páginas quando quiser
+
+// Importando componentes administrativos
+import BackupManager from '@/admin/components/BackupManager.vue'
+import BackupRestore from '@/admin/components/BackupRestore.vue'
+import AdminLayout from '@/admin/views/AdminLayout.vue'
+import AdminDashboard from '@/admin/views/Dashboard.vue'
+import Settings from '@/admin/views/Settings.vue'
+import SystemLogs from '@/admin/views/SystemLogs.vue'
+import UserManagement from '@/admin/views/UserManagement.vue'
 
 const devMode = import.meta.env.VITE_DEV_MODE === 'true'
 
@@ -33,6 +43,12 @@ const routes = [
     path: '/login',
     name: 'Login',
     component: LoginPage,
+    meta: { requiresAuth: false }
+  },
+  {
+    path: '/admin-login',
+    name: 'AdminLogin',
+    component: AdminLogin,
     meta: { requiresAuth: false }
   },
   {
@@ -82,8 +98,61 @@ const routes = [
     name: 'PerfilEmpresa',
     component: () => import('../pages/profissional/Perfil.vue'),
     meta: { requiresAuth: true, onlyProfissional: true }
+  },
+  {
+    path: '/privacidade',
+    name: 'PrivacyPolicy',
+    component: PrivacyPolicy,
+    meta: {
+      requiresAuth: false
+    }
+  },
+  // Rotas Administrativas
+  {
+    path: '/admin',
+    component: AdminLayout,
+    meta: { requiresAuth: true, requiresAdmin: true },
+    children: [
+      {
+        path: '',
+        name: 'admin-dashboard',
+        component: AdminDashboard
+      },
+      {
+        path: 'users',
+        name: 'admin-users',
+        component: UserManagement
+      },
+      {
+        path: 'settings',
+        name: 'admin-settings',
+        component: Settings
+      },
+      {
+        path: 'logs',
+        name: 'admin-logs',
+        component: SystemLogs
+      },
+      {
+        path: 'backup',
+        name: 'BackupManager',
+        component: BackupManager,
+        meta: {
+          requiresAuth: true,
+          requiresAdmin: true
+        }
+      },
+      {
+        path: 'backup/restore',
+        name: 'BackupRestore',
+        component: BackupRestore,
+        meta: {
+          requiresAuth: true,
+          requiresAdmin: true
+        }
+      }
+    ]
   }
-  // Adicione outras rotas conforme for criando as telas!
 ]
 
 const router = createRouter({
@@ -100,6 +169,7 @@ router.beforeEach(async (to, from, next) => {
   }
 
   const requiresAuth = to.meta.requiresAuth
+  const requiresAdmin = to.meta.requiresAdmin
   const onlyCliente = to.meta.onlyCliente
   const onlyProfissional = to.meta.onlyProfissional
   const user = auth.currentUser
@@ -122,13 +192,19 @@ router.beforeEach(async (to, from, next) => {
       }
     }
 
+    // Verificação de acesso administrativo
+    if (requiresAdmin && userData.tipo !== 'admin') {
+      next('/') // Redireciona para home se não for admin
+      return
+    }
+
     // Proteção por tipo de usuário
     if (onlyCliente && userData.tipo !== 'cliente') {
-      next('/') // ou outra rota para não clientes
+      next('/')
       return
     }
     if (onlyProfissional && userData.tipo !== 'profissional') {
-      next('/') // ou outra rota para não profissionais
+      next('/')
       return
     }
   }

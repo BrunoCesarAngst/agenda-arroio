@@ -9,10 +9,6 @@ lerna-debug.log*
 
 # Dependências
 node_modules
-.pnp
-.pnp.js
-
-# Build
 dist
 dist-ssr
 *.local
@@ -30,14 +26,23 @@ dist-ssr
 
 # Ambiente
 .env
-.env.local
-.env.production
-.env.*.local
+.env.*
 !.env.example
 
-# Vercel
-.vercel
+# Testes
+coverage
+.nyc_output
+
+# Build
+dist
+build
 
 # Cache
 .cache
 .temp
+.eslintcache
+.stylelintcache
+
+# Outros
+.DS_Store
+Thumbs.db

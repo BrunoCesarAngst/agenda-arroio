@@ -1,165 +1,251 @@
-# 🏖️ Agenda Arroio do Sal
+# Agenda Arroio do Sal
 
-[![Vue.js](https://img.shields.io/badge/Vue.js-3.x-4FC08D?style=flat-square&logo=vue.js&logoColor=white)](https://vuejs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Firebase](https://img.shields.io/badge/Firebase-10.x-FFCA28?style=flat-square&logo=firebase&logoColor=black)](https://firebase.google.com/)
-[![Vite](https://img.shields.io/badge/Vite-5.x-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](LICENSE)
+Sistema de agendamento para a cidade de Arroio do Sal.
 
-> Plataforma de agendamento de serviços para a cidade de Arroio do Sal, RS. Conectando profissionais e clientes de forma eficiente e segura.
+## Tecnologias Utilizadas
 
-## 🚀 Tecnologias
+- Vue.js 3
+- TypeScript
+- Vite
+- Tailwind CSS
+- Firebase
+- Chart.js
+- Jest
+- ESLint
+- Prettier
+- Husky
 
-Este projeto foi construído com as seguintes tecnologias:
+## Requisitos
 
-- **Frontend**
-  - [Vue.js 3](https://vuejs.org/) - Framework progressivo para construção de interfaces
-  - [Tailwind CSS](https://tailwindcss.com/) - Framework CSS utility-first
-  - [Vite](https://vitejs.dev/) - Build tool e dev server
-  - [Vue Router](https://router.vuejs.org/) - Roteamento oficial do Vue.js
+- Node.js 18+
+- npm 9+
 
-- **Backend & Infraestrutura**
-  - [Firebase](https://firebase.google.com/)
-    - Authentication - Autenticação de usuários
-    - Firestore - Banco de dados NoSQL
-    - Security Rules - Regras de segurança personalizadas
-    - Hosting - Hospedagem da aplicação
+## Instalação
 
-## 🎯 Funcionalidades
-
-- **Autenticação**
-  - Login com email/senha
-  - Login com Google
-  - Login com telefone (SMS)
-  - Recuperação de senha
-
-- **Agendamento**
-  - Busca de profissionais
-  - Agendamento de serviços
-  - Confirmação por SMS/Email
-  - Histórico de agendamentos
-
-- **Profissionais**
-  - Cadastro de serviços
-  - Gestão de agenda
-  - Perfil personalizado
-  - Avaliações e comentários
-
-- **Promoções**
-  - Sistema de descontos
-  - Cupons promocionais
-  - Notificações de ofertas
-
-## 🏗️ Arquitetura
-
-O projeto segue uma arquitetura modular e escalável:
-
-```
-src/
-├── assets/          # Recursos estáticos
-├── components/      # Componentes reutilizáveis
-│   └── auth/        # Componentes de autenticação
-├── pages/          # Páginas da aplicação
-├── router/         # Configuração de rotas
-├── services/       # Serviços e integrações
-│   └── firebase/   # Configuração do Firebase
-└── stores/         # Gerenciamento de estado
-```
-
-## 🚀 Começando
-
-### Pré-requisitos
-
-- Node.js 18.x ou superior
-- npm 9.x ou superior
-- Conta no Firebase
-
-### Instalação
-
-1. Clone o repositório
+1. Clone o repositório:
 ```bash
-git clone https://github.com/BrunoCesarAngst/agenda-arroio.git
+git clone https://github.com/seu-usuario/agenda-arroio.git
 cd agenda-arroio
 ```
 
-2. Instale as dependências
+2. Instale as dependências:
 ```bash
 npm install
 ```
 
-3. Configure as variáveis de ambiente
+3. Configure as variáveis de ambiente:
 ```bash
 cp .env.example .env
 ```
-Edite o arquivo `.env` com suas credenciais do Firebase.
 
-4. Inicie o servidor de desenvolvimento
+4. Inicie o servidor de desenvolvimento:
 ```bash
 npm run dev
 ```
 
-## 🔧 Configuração do Firebase
+## Scripts Disponíveis
 
-1. Crie um projeto no [Firebase Console](https://console.firebase.google.com)
-2. Ative os serviços:
-   - Authentication
-   - Firestore
-   - Hosting
-3. Configure as regras de segurança do Firestore (veja `docs/firestore-structure.md`)
-4. Adicione suas credenciais no arquivo `.env`
+- `npm run dev` - Inicia o servidor de desenvolvimento
+- `npm run build` - Compila o projeto para produção
+- `npm run preview` - Visualiza a versão de produção localmente
+- `npm run test:unit` - Executa os testes unitários
+- `npm run test:coverage` - Executa os testes com cobertura
+- `npm run lint` - Executa o linter
+- `npm run format` - Formata o código
 
-## 📦 Build e Deploy
+## Estrutura do Projeto
 
-```bash
-# Build para produção
-npm run build
-
-# Preview do build
-npm run preview
-
-# Deploy para Firebase
-npm run deploy
+```
+src/
+  ├── admin/           # Painel administrativo
+  ├── components/      # Componentes Vue
+  ├── services/        # Serviços (Firebase, etc)
+  ├── router/          # Configuração de rotas
+  ├── views/           # Páginas da aplicação
+  ├── App.vue          # Componente raiz
+  └── main.ts          # Ponto de entrada
 ```
 
-## 🧪 Testes
+## Testes
+
+O projeto utiliza Jest para testes unitários. Para executar os testes:
 
 ```bash
-# Executa os testes unitários
 npm run test:unit
-
-# Executa os testes e2e
-npm run test:e2e
 ```
 
-## 📚 Documentação
+Para ver a cobertura de testes:
 
-- [Estrutura do Firestore](docs/firestore-structure.md)
-- [Guia de Contribuição](CONTRIBUTING.md)
-- [Código de Conduta](CODE_OF_CONDUCT.md)
+```bash
+npm run test:coverage
+```
 
-## 🤝 Contribuindo
+## Linting e Formatação
 
-1. Fork o projeto
-2. Crie sua branch de feature (`git checkout -b feature/AmazingFeature`)
-3. Commit suas mudanças (`git commit -m 'feat: add some amazing feature'`)
-4. Push para a branch (`git push origin feature/AmazingFeature`)
-5. Abra um Pull Request
+O projeto utiliza ESLint e Prettier para garantir a qualidade do código. Para executar o linter:
 
-## 📝 Licença
+```bash
+npm run lint
+```
 
-Este projeto está sob a licença MIT. Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
+Para formatar o código:
 
-## 👥 Autores
+```bash
+npm run format
+```
 
-- **Bruno Cesar Angst** - *Desenvolvimento* - [GitHub](https://github.com/BrunoCesarAngst)
+## Deploy
 
-## 🙏 Agradecimentos
+O projeto está configurado para deploy no Firebase. Para fazer o deploy:
 
-- Comunidade Vue.js
-- Equipe do Tailwind CSS
-- Firebase Team
-- Todos os contribuidores
+1. Configure o Firebase:
+```bash
+firebase login
+firebase init
+```
 
----
+2. Faça o build:
+```bash
+npm run build
+```
 
-⭐️ From [BrunoCesarAngst](https://github.com/BrunoCesarAngst)
+3. Deploy:
+```bash
+firebase deploy
+```
+
+## Sistema de Backup
+
+O sistema de backup da aplicação permite gerenciar backups do banco de dados Firestore de forma manual e automática.
+
+## Funcionalidades
+
+- Backup manual através da interface administrativa
+- Backup automático diário
+- Restauração de backups
+- Gerenciamento de retenção (30 dias)
+- Interface administrativa para gerenciamento de backups
+
+## Configuração
+
+1. Instale as dependências:
+```bash
+npm install
+```
+
+2. Configure as variáveis de ambiente no arquivo `.env`:
+```env
+VITE_FIREBASE_API_KEY=seu_api_key
+VITE_FIREBASE_AUTH_DOMAIN=seu_auth_domain
+VITE_FIREBASE_PROJECT_ID=seu_project_id
+VITE_FIREBASE_STORAGE_BUCKET=seu_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=seu_messaging_sender_id
+VITE_FIREBASE_APP_ID=seu_app_id
+VITE_FIREBASE_MEASUREMENT_ID=seu_measurement_id
+```
+
+## Uso
+
+### Interface Administrativa
+
+1. Acesse a interface administrativa em `/admin/backup`
+2. Use o botão "Criar Backup Agora" para fazer um backup manual
+3. Configure o backup automático diário
+4. Gerencie os backups existentes (download, restauração, exclusão)
+
+### Backup Manual via CLI
+
+Para criar um backup manual via linha de comando:
+
+```bash
+npm run backup:now
+```
+
+### Backup Automático
+
+O backup automático é executado diariamente às 00:00. Para iniciar o serviço de backup:
+
+```bash
+npm run backup
+```
+
+## Estrutura de Dados
+
+Os backups são armazenados em:
+
+- Firestore: Coleção `backups` com metadados
+- Storage: Pasta `backups` com arquivos JSON
+
+### Metadados do Backup
+
+```typescript
+interface Backup {
+  id: string;
+  timestamp: Timestamp;
+  status: 'in_progress' | 'completed' | 'failed';
+  size: number;
+  type: 'manual' | 'automatic';
+  downloadUrl?: string;
+  completedAt?: Timestamp;
+  error?: string;
+}
+```
+
+## Restauração
+
+1. Acesse a interface de restauração em `/admin/backup/restore`
+2. Escolha entre restaurar de arquivo ou URL
+3. Confirme a restauração
+
+⚠️ **Atenção**: A restauração substituirá todos os dados atuais. Faça um backup antes de restaurar.
+
+## Manutenção
+
+- Os backups são mantidos por 30 dias
+- Backups antigos são automaticamente removidos
+- O sistema mantém um máximo de 30 backups
+
+## Segurança
+
+- Apenas administradores podem acessar as funcionalidades de backup
+- Os backups são armazenados de forma segura no Firebase Storage
+- As URLs de download são temporárias e protegidas
+
+## Troubleshooting
+
+### Problemas Comuns
+
+1. **Erro ao criar backup**
+   - Verifique as permissões do Firebase
+   - Confirme o espaço disponível no Storage
+   - Verifique os logs de erro
+
+2. **Erro ao restaurar backup**
+   - Verifique se o arquivo é válido
+   - Confirme as permissões de escrita
+   - Verifique o formato dos dados
+
+3. **Backup automático não está funcionando**
+   - Verifique se o serviço está rodando
+   - Confirme a configuração do cron
+   - Verifique os logs do sistema
+
+### Logs
+
+Os logs de backup podem ser encontrados em:
+- Console do Firebase
+- Interface administrativa em `/admin/logs`
+- Logs do sistema operacional
+
+## Contribuição
+
+Para contribuir com o sistema de backup:
+
+1. Faça um fork do repositório
+2. Crie uma branch para sua feature
+3. Implemente as mudanças
+4. Envie um pull request
+
+## Licença
+
+Este projeto está licenciado sob a licença MIT - veja o arquivo [LICENSE](LICENSE) para mais detalhes.

@@ -1,4 +1,5 @@
 import vue from '@vitejs/plugin-vue'
+import path from 'path'
 import { defineConfig } from 'vite'
 import Inspect from 'vite-plugin-inspect'
 import vueDevTools from 'vite-plugin-vue-devtools'
@@ -10,10 +11,15 @@ export default defineConfig({
     vueDevTools(),
     Inspect(),
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src')
+    }
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
-    sourcemap: false,
+    sourcemap: true,
     // Otimizações para produção
     minify: 'terser',
     terserOptions: {
@@ -27,20 +33,16 @@ export default defineConfig({
         manualChunks: {
           'vendor': [
             'vue',
-            'vue-router'
+            'vue-router',
+            'firebase/app',
+            'firebase/auth',
+            'firebase/firestore',
+            'firebase/storage',
+            'firebase/analytics',
+            'firebase/performance',
+            'firebase/app-check',
+            'chart.js',
           ],
-          'firebase-core': [
-            'firebase/app'
-          ],
-          'firebase-auth': [
-            'firebase/auth'
-          ],
-          'firebase-firestore': [
-            'firebase/firestore'
-          ],
-          'firebase-storage': [
-            'firebase/storage'
-          ]
         },
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
@@ -51,6 +53,13 @@ export default defineConfig({
   },
   server: {
     host: true,
-    port: 3000
+    port: 3000,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    }
   }
 })

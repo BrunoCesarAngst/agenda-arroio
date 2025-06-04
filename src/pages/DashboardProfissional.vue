@@ -1,101 +1,24 @@
 <template>
-  <header class="bg-gradient-to-r from-blue-800 to-blue-600 text-white p-6 rounded-b-3xl shadow-xl mb-4">
-    <div class="max-w-7xl mx-auto">
-      <!-- Informações da Empresa -->
-      <div class="flex items-center justify-between mb-6">
-        <div class="flex items-center space-x-6">
-          <!-- Logo/Ícone da Empresa -->
-          <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-            <span class="text-3xl">🏢</span>
-          </div>
-
-          <!-- Informações da Empresa -->
-          <div>
-            <h1 class="text-2xl font-bold tracking-tight">{{ empresa?.nome || 'Carregando...' }}</h1>
-            <div class="mt-2 space-y-1">
-              <p class="text-blue-100 text-sm flex items-center">
-                <span class="mr-2">📍</span>
-                {{ empresa?.endereco }}
-              </p>
-              <p class="text-blue-100 text-sm flex items-center">
-                <span class="mr-2">📝</span>
-                {{ empresa?.descricao }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Botão Sair -->
-        <button
-          @click="logout"
-          class="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl backdrop-blur-sm transition-all duration-200 flex items-center space-x-2"
-        >
-          <span>Sair</span>
-          <span>🚪</span>
-        </button>
-      </div>
-
-      <!-- Navegação -->
-      <nav class="flex items-center space-x-4 border-t border-blue-500/30 pt-4">
-        <router-link
-          to="/dashboard-empresa"
-          class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-          :class="[$route.path === '/dashboard-empresa' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10']"
-        >
-          <span>📊</span>
-          <span>Dashboard</span>
-        </router-link>
-
-        <router-link
-          to="/agendamentos"
-          class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-          :class="[$route.path === '/agendamentos' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10']"
-        >
-          <span>📅</span>
-          <span>Agendamentos</span>
-        </router-link>
-
-        <router-link
-          to="/servicos"
-          class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-          :class="[$route.path === '/servicos' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10']"
-        >
-          <span>💇</span>
-          <span>Serviços</span>
-        </router-link>
-
-        <router-link
-          to="/promocoes"
-          class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-          :class="[$route.path === '/promocoes' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10']"
-        >
-          <span>🎁</span>
-          <span>Promoções</span>
-        </router-link>
-
-        <router-link
-          to="/perfil"
-          class="px-4 py-2 rounded-lg transition-all duration-200 flex items-center space-x-2"
-          :class="[$route.path === '/perfil' ? 'bg-white/20 text-white' : 'text-blue-100 hover:bg-white/10']"
-        >
-          <span>👤</span>
-          <span>Perfil</span>
-        </router-link>
-      </nav>
-    </div>
-  </header>
+  <HeaderProfissional
+    :empresa="empresa"
+    @search="handleSearch"
+    @notifications="handleNotifications"
+  />
   <div class="min-h-screen bg-gradient-to-b from-blue-50 to-white pt-8 flex flex-col items-center">
-    <div v-if="loading" class="w-full max-w-3xl text-center py-8">
-      <p class="text-gray-600">Carregando dados...</p>
-    </div>
-    <div v-else-if="error" class="w-full max-w-3xl text-center py-8">
-      <p class="text-red-600">{{ error }}</p>
-    </div>
-    <div v-else class="w-full max-w-3xl space-y-8">
+    <div class="w-full max-w-3xl space-y-8">
       <!-- Agendamentos Recebidos -->
       <div class="bg-white p-6 rounded-xl shadow">
         <h3 class="text-lg font-bold mb-4 text-blue-700">Agendamentos Recebidos</h3>
-        <div v-if="agendamentos.length === 0" class="text-gray-500 text-center">Nenhum agendamento recebido.</div>
+        <div v-if="loading" class="text-center py-4">
+          <p class="text-gray-600">Carregando agendamentos...</p>
+        </div>
+        <div v-else-if="error" class="text-center py-4">
+          <p class="text-red-600">{{ error }}</p>
+        </div>
+        <div v-else-if="agendamentos.length === 0" class="text-blue-700 text-center py-8">
+          <p class="text-lg font-semibold">Nenhum agendamento encontrado.</p>
+          <p class="text-gray-500 mt-2">Quando um cliente realizar um agendamento, ele aparecerá aqui!</p>
+        </div>
         <div v-else class="space-y-3">
           <div v-for="ag in agendamentos" :key="ag.id" class="border-b pb-2 last:border-b-0 last:pb-0 flex justify-between items-center">
             <div>
@@ -104,7 +27,11 @@
               <p class="text-sm text-gray-600">Data: {{ formatDate(ag.data) }} - {{ ag.hora }}</p>
               <p class="text-xs text-gray-500">Status: <span :class="statusClass(ag.status)">{{ ag.status }}</span></p>
             </div>
-            <button v-if="ag.status === 'pendente'" class="text-green-600 hover:underline text-xs" @click="confirmarAgendamento(ag.id)">Confirmar</button>
+            <div class="flex space-x-2">
+              <button v-if="ag.status === 'pendente'" class="text-green-600 hover:underline text-xs" @click="confirmarAgendamento(ag.id)">
+                Confirmar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -145,11 +72,10 @@
 </template>
 
 <script setup>
-import { signOut } from 'firebase/auth'
 import { collection, doc, getDoc, getDocs, getFirestore, orderBy, query, where } from 'firebase/firestore'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { auth } from '../services/firebase'
+import HeaderProfissional from '../components/HeaderProfissional.vue'
 import useAuthUser from '../useAuthUser'
 import { formatDate } from '../utils'
 
@@ -172,6 +98,8 @@ const promocoes = ref([])
 // Loading e erro
 const loading = ref(true)
 const error = ref('')
+
+const mostrarModalCliente = ref(false)
 
 async function carregarDadosEmpresa() {
   try {
@@ -214,8 +142,13 @@ async function carregarAgendamentos() {
       // Busca dados do cliente
       let clienteNome = 'Cliente não encontrado'
       try {
-        const clienteDoc = await getDoc(doc(db, 'usuarios', agendamento.clienteId))
-        if (clienteDoc.exists()) clienteNome = clienteDoc.data().nome
+        if (agendamento.clienteTipo === 'externo') {
+          const clienteDoc = await getDoc(doc(db, 'clientes_externos', agendamento.clienteId))
+          if (clienteDoc.exists()) clienteNome = clienteDoc.data().nome
+        } else {
+          const clienteDoc = await getDoc(doc(db, 'usuarios', agendamento.clienteId))
+          if (clienteDoc.exists()) clienteNome = clienteDoc.data().nome
+        }
       } catch {}
       agendamentosData.push({
         id: docSnap.id,
@@ -277,16 +210,21 @@ function confirmarAgendamento(id) {
 }
 
 function adicionarServico() {
-  alert('Funcionalidade de adicionar serviço em breve!')
+  router.push('/servicos')
 }
 
 function adicionarPromocao() {
-  alert('Funcionalidade de adicionar promoção em breve!')
+  router.push('/promocoes')
 }
 
-function logout() {
-  signOut(auth)
-  router.push('/login')
+function handleSearch(query) {
+  // Implementar lógica de busca
+  console.log('Busca:', query)
+}
+
+function handleNotifications() {
+  // Implementar lógica de notificações
+  console.log('Notificações clicadas')
 }
 
 onMounted(async () => {

@@ -1,7 +1,8 @@
 import { initializeApp } from 'firebase/app'
 import { initializeAppCheck, ReCaptchaV3Provider } from 'firebase/app-check'
-import { getAuth, onAuthStateChanged } from 'firebase/auth'
-import { enableIndexedDbPersistence, getFirestore } from 'firebase/firestore'
+import { connectAuthEmulator, getAuth, onAuthStateChanged } from 'firebase/auth'
+import { connectDatabaseEmulator, getDatabase } from 'firebase/database'
+import { connectFirestoreEmulator, enableIndexedDbPersistence, getFirestore } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
@@ -18,6 +19,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
 const db = getFirestore(app)
+const rtdb = getDatabase(app)
+
+// Só conecta aos emuladores se a flag estiver ativada
+if (import.meta.env.DEV) {
+  connectAuthEmulator(auth, 'http://localhost:9098')
+  connectFirestoreEmulator(db, 'localhost', 8081)
+  connectDatabaseEmulator(rtdb, 'localhost', 9000)
+  console.log('Conectado aos emuladores do Firebase')
+}
+
 const storage = getStorage(app)
 
 // Configuração do App Check
@@ -27,12 +38,17 @@ const appCheckConfig = {
 }
 
 // Ativa AppCheck debug apenas em desenvolvimento
-if (import.meta.env.DEV) {
+if (import.meta.env.DEV && import.meta.env.VITE_FIREBASE_APPCHECK_DEBUG_TOKEN) {
+  self.FIREBASE_APPCHECK_DEBUG_TOKEN = import.meta.env.VITE_FIREBASE_APPCHECK_DEBUG_TOKEN
+  console.log('AppCheck Debug Token setado via .env:', self.FIREBASE_APPCHECK_DEBUG_TOKEN)
+} else if (import.meta.env.DEV) {
   self.FIREBASE_APPCHECK_DEBUG_TOKEN = true
+  console.log('AppCheck Debug Token gerado automaticamente')
 }
 
 // Inicializa App Check
-initializeAppCheck(app, appCheckConfig)
+const appCheck = initializeAppCheck(app, appCheckConfig)
+console.log('AppCheck inicializado:', appCheck)
 
 // Habilita persistência offline
 enableIndexedDbPersistence(db).catch((err) => {
@@ -55,7 +71,7 @@ onAuthStateChanged(auth, (user) => {
 })
 
 // Exporta apenas o necessário inicialmente
-export { auth, db, storage }
+export { app, appCheck, auth, db, rtdb, storage }
 
 // Exporta funções específicas do Firebase sob demanda
 export const getFirebaseAuth = () => import('firebase/auth')
