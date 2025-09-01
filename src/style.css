@@ -1,0 +1,15 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Oculta apenas a barra de rolagem, mas mantém a rolagem funcional */
+/* Para navegadores Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+/* Para Firefox */
+body {
+  scrollbar-width: none;
+}
