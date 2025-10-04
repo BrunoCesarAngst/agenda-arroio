@@ -1,8 +1,7 @@
 // router/index.js
 
-import { doc, getDoc, getFirestore } from 'firebase/firestore'
 import { createRouter, createWebHistory } from 'vue-router'
-import { auth } from '../services/firebase'
+import { useUserStore } from '../stores/user'
 
 // Importe suas páginas/components principais
 import WelcomePage from '../WelcomePage.vue'
@@ -172,38 +171,49 @@ router.beforeEach(async (to, from, next) => {
   const requiresAdmin = to.meta.requiresAdmin
   const onlyCliente = to.meta.onlyCliente
   const onlyProfissional = to.meta.onlyProfissional
-  const user = auth.currentUser
 
-  if (requiresAuth && !user) {
+  // Usa a store para verificar autenticação
+  const userStore = useUserStore()
+
+  // Se a store ainda está carregando, aguarda
+  if (userStore.loading) {
+    await userStore.init()
+  }
+
+  // Verifica autenticação
+  if (requiresAuth && !userStore.isAuthenticated) {
     next('/login')
     return
   }
 
-  if (user) {
-    const db = getFirestore()
-    const userDoc = await getDoc(doc(db, 'usuarios', user.uid))
-    const userData = userDoc.exists() ? userDoc.data() : null
-
-    // Se não tem tipo definido, força cadastro complementar
-    if (!userData || !userData.tipo) {
+  // Se está autenticado, verifica permissões
+  if (userStore.isAuthenticated) {
+    // Se não tem perfil completo, força cadastro
+    if (!userStore.hasCompletedProfile) {
       if (to.path !== '/cadastro') {
         next('/cadastro')
         return
       }
     }
 
-    // Verificação de acesso administrativo
-    if (requiresAdmin && userData.tipo !== 'admin') {
-      next('/') // Redireciona para home se não for admin
+    // Se já tem perfil e tenta acessar cadastro, redireciona
+    if (userStore.hasCompletedProfile && to.path === '/cadastro') {
+      next('/')
+      return
+    }
+
+    // Verifica acesso administrativo
+    if (requiresAdmin && !userStore.isAdmin) {
+      next('/')
       return
     }
 
     // Proteção por tipo de usuário
-    if (onlyCliente && userData.tipo !== 'cliente') {
+    if (onlyCliente && !userStore.isCliente) {
       next('/')
       return
     }
-    if (onlyProfissional && userData.tipo !== 'profissional') {
+    if (onlyProfissional && !userStore.isProfissional) {
       next('/')
       return
     }

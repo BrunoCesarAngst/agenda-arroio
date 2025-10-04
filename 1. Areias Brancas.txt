@@ -1,0 +1,42 @@
+1. Areias Brancas
+2. Atlântida Sul
+3. Balneário Alvorada
+4. Balneário Atlântico
+5. Balneário Azul
+
+8. Balneário Camboim
+
+12. Balneário Costa do Sol
+
+15. Balneário Figueirinha
+
+19. Balneário Itapeva
+20. Balneário Jardim Raiante
+
+23. Balneário Lagoa do Meio
+
+26. Balneário Marambaia
+
+30. Balneário Novo Horizonte
+
+33. Balneário Paraíso
+34. Balneário Parque das Flores
+35. Balneário Pérola
+
+38. Balneário Praia Azul
+
+40. Balneário Quatro Lagos
+41. Balneário Rainha do Mar
+
+45. Balneário Santa Rita
+46. Balneário São Jorge
+47. Balneário São Pedro
+48. Balneário Serra Azul
+
+51. Balneário Sol Nascente
+
+56. Balneário Village
+57. Balneário Vista Alegre
+58. Balneário Zona Nova
+59. Centro (sede do município)
+60. Rondinha (incluindo Rondinha Velha e Rondinha Nova)

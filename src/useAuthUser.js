@@ -13,16 +13,29 @@ async function fetchUserData(firebaseUser) {
     userData.value = null
     return
   }
-  const userDoc = await getDoc(doc(db, 'usuarios', firebaseUser.uid))
-  if (userDoc.exists()) {
-    userData.value = userDoc.data()
-  } else {
-    userData.value = {
-      nome: firebaseUser.displayName || '',
-      email: firebaseUser.email || '',
-      telefone: '',
-      foto: firebaseUser.photoURL || ''
+
+  try {
+    // Verifica se o token ainda é válido antes de buscar dados
+    await firebaseUser.getIdToken(true)
+
+    const userDoc = await getDoc(doc(db, 'usuarios', firebaseUser.uid))
+    if (userDoc.exists()) {
+      userData.value = userDoc.data()
+    } else {
+      // Usuário autenticado mas não existe no Firestore
+      userData.value = {
+        nome: firebaseUser.displayName || '',
+        email: firebaseUser.email || '',
+        telefone: '',
+        foto: firebaseUser.photoURL || '',
+        // Marca como perfil incompleto
+        tipo: null
+      }
     }
+  } catch (error) {
+    console.error('Erro ao buscar dados do usuário:', error)
+    // Se der erro no token, limpa os dados
+    userData.value = null
   }
 }
 

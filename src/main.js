@@ -5,11 +5,13 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getPerformance } from 'firebase/performance';
 import { getStorage } from 'firebase/storage';
+import { createPinia } from 'pinia';
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 import { logger } from './services/logger';
 import { metricsService } from './services/metricsService';
+import { useUserStore } from './stores/user';
 import './style.css';
 
 // Configuração do Firebase
@@ -38,8 +40,10 @@ const appCheck = initializeAppCheck(app, appCheckConfig);
 
 // Configuração do Vue
 const vueApp = createApp(App);
+const pinia = createPinia();
 
 // Registro de plugins e serviços
+vueApp.use(pinia);
 vueApp.use(router);
 // vueApp.use(adminRouter);
 
@@ -52,9 +56,6 @@ vueApp.provide('performance', performance);
 vueApp.provide('appCheck', appCheck);
 vueApp.provide('metricsService', metricsService);
 vueApp.provide('logger', logger);
-
-// Inicialização da aplicação
-vueApp.mount('#app');
 
 // Monitoramento de erros global
 vueApp.config.errorHandler = (err, vm, info) => {
@@ -70,3 +71,9 @@ if (import.meta.env.PROD) {
     metricsService.trackPageLoad('app', loadTime);
   });
 }
+
+// Inicializa a store de usuário e monta a aplicação
+const userStore = useUserStore();
+userStore.init().then(() => {
+  vueApp.mount('#app');
+});

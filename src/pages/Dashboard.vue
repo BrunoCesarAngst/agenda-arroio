@@ -78,6 +78,7 @@ import { useRouter } from 'vue-router'
 import HeaderPadrao from '../components/HeaderPadrao.vue'
 import useAuthUser from '../useAuthUser'
 import { formatDate } from '../utils'
+import { verifyUserAuth } from '../utils/authUtils'
 
 const router = useRouter()
 const { user, userData, loading } = useAuthUser()
@@ -102,17 +103,30 @@ function fecharModal() {
 async function salvarEdicao() {
   erroEdicao.value = ''
   sucessoEdicao.value = false
+
   if (!user.value) {
     erroEdicao.value = 'Usuário não autenticado.'
     return
   }
+
   try {
+    // Verifica se o token ainda é válido antes de salvar
+    const isAuthValid = await verifyUserAuth(user.value)
+    if (!isAuthValid) {
+      erroEdicao.value = 'Sessão expirada. Faça login novamente.'
+      setTimeout(() => {
+        router.push('/login')
+      }, 2000)
+      return
+    }
+
     await updateDoc(doc(db, 'usuarios', user.value.uid), { telefone: telefoneEdit.value })
     sucessoEdicao.value = true
     // Atualiza o valor local também
     if (userData.value) userData.value.telefone = telefoneEdit.value
     setTimeout(() => fecharModal(), 1200)
   } catch (e) {
+    console.error('Erro ao atualizar telefone:', e)
     erroEdicao.value = 'Erro ao atualizar telefone.'
   }
 }

@@ -118,7 +118,7 @@ export default {
           showBanner.value = true;
         }
       } else {
-        showBanner.value = true;
+        showBanner.value = false;
       }
     };
 

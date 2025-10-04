@@ -72,15 +72,15 @@
 </template>
 
 <script setup>
-import { collection, doc, getDoc, getDocs, getFirestore, orderBy, query, where } from 'firebase/firestore'
+import { collection, doc, getDoc, getDocs, getFirestore, orderBy, query, setDoc, updateDoc, where } from 'firebase/firestore'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import HeaderProfissional from '../components/HeaderProfissional.vue'
-import useAuthUser from '../useAuthUser'
+import { useUserStore } from '../stores/user'
 import { formatDate } from '../utils'
 
 const router = useRouter()
-const { user, userData } = useAuthUser()
+const userStore = useUserStore()
 const db = getFirestore()
 
 // Dados da empresa
@@ -101,12 +101,57 @@ const error = ref('')
 
 const mostrarModalCliente = ref(false)
 
+async function criarEmpresaBasica() {
+  try {
+    const empresaData = {
+      nome: userStore.userData?.nome || 'Minha Empresa',
+      descricao: 'Descrição da empresa',
+      endereco: userStore.userData?.endereco || {
+        rua: '',
+        numero: '',
+        complemento: '',
+        bairro: '',
+        cidade: 'Arroio do Sal',
+        estado: 'RS',
+        cep: '95585-000',
+        referencia: '',
+        contato: { nome: '', telefone: '' }
+      },
+      telefone: userStore.userData?.telefone || '',
+      email: userStore.userData?.email || '',
+      ativo: true,
+      criadoEm: new Date()
+    }
+
+    // Cria a empresa no Firestore
+    const empresaRef = doc(collection(db, 'empresas'))
+    await setDoc(empresaRef, empresaData)
+
+    // Atualiza o usuário com o empresaId
+    await updateDoc(doc(db, 'usuarios', userStore.user.uid), {
+      empresaId: empresaRef.id
+    })
+
+    // Atualiza a store
+    await userStore.refreshUserData()
+
+    empresa.value = empresaData
+    console.log('Empresa criada com sucesso:', empresaRef.id)
+  } catch (err) {
+    console.error('Erro ao criar empresa:', err)
+    error.value = 'Erro ao criar empresa'
+  }
+}
+
 async function carregarDadosEmpresa() {
   try {
-    if (!userData.value?.empresaId) {
-      throw new Error('Empresa não encontrada')
+    if (!userStore.userData?.empresaId) {
+      console.log('Usuário não tem empresaId, criando empresa...')
+      // Se não tem empresaId, cria uma empresa básica
+      await criarEmpresaBasica()
+      return
     }
-    const empresaDoc = await getDoc(doc(db, 'empresas', userData.value.empresaId))
+    const empresaDoc = await getDoc(doc(db, 'empresas', userStore.userData.empresaId))
     if (!empresaDoc.exists()) {
       throw new Error('Empresa não encontrada')
     }
@@ -119,13 +164,14 @@ async function carregarDadosEmpresa() {
 
 async function carregarAgendamentos() {
   try {
-    if (!userData.value?.empresaId) {
-      throw new Error('Empresa não encontrada')
+    if (!userStore.userData?.empresaId) {
+      console.log('Sem empresaId, pulando carregamento de agendamentos')
+      return
     }
     const agendamentosRef = collection(db, 'agendamentos')
     const q = query(
       agendamentosRef,
-      where('empresaId', '==', userData.value.empresaId),
+      where('empresaId', '==', userStore.userData.empresaId),
       orderBy('data', 'desc'),
       orderBy('hora', 'desc')
     )
@@ -168,11 +214,12 @@ async function carregarAgendamentos() {
 
 async function carregarServicos() {
   try {
-    if (!userData.value?.empresaId) {
-      throw new Error('Empresa não encontrada')
+    if (!userStore.userData?.empresaId) {
+      console.log('Sem empresaId, pulando carregamento de serviços')
+      return
     }
     const servicosRef = collection(db, 'servicos')
-    const q = query(servicosRef, where('empresaId', '==', userData.value.empresaId), orderBy('nome'))
+    const q = query(servicosRef, where('empresaId', '==', userStore.userData.empresaId), orderBy('nome'))
     const querySnapshot = await getDocs(q)
     servicos.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
   } catch (err) {
@@ -183,11 +230,12 @@ async function carregarServicos() {
 
 async function carregarPromocoes() {
   try {
-    if (!userData.value?.empresaId) {
-      throw new Error('Empresa não encontrada')
+    if (!userStore.userData?.empresaId) {
+      console.log('Sem empresaId, pulando carregamento de promoções')
+      return
     }
     const promocoesRef = collection(db, 'promocoes')
-    const q = query(promocoesRef, where('empresaId', '==', userData.value.empresaId), orderBy('validade', 'desc'))
+    const q = query(promocoesRef, where('empresaId', '==', userStore.userData.empresaId), orderBy('validade', 'desc'))
     const querySnapshot = await getDocs(q)
     promocoes.value = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
   } catch (err) {

@@ -33,29 +33,45 @@
 
 <script setup>
 import { signInWithEmailAndPassword } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth } from '../../services/firebase'
+import { useUserStore } from '../../stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 const email = ref('')
 const password = ref('')
 const loading = ref(false)
 const error = ref('')
+const db = getFirestore()
 
 const handleLogin = async () => {
   try {
     loading.value = true
     error.value = ''
-    await signInWithEmailAndPassword(auth, email.value, password.value)
-    router.push('/')
+
+    // Tenta fazer login
+    const userCredential = await signInWithEmailAndPassword(auth, email.value, password.value)
+
+    // Aguarda a store atualizar os dados do usuário
+    await userStore.refreshUserData()
+
+    // Verifica se precisa completar o cadastro
+    if (!userStore.hasCompletedProfile) {
+      router.push('/cadastro')
+    } else {
+      router.push('/')
+    }
   } catch (err) {
+    console.error('Erro no login:', err)
+
+    // Mensagens de erro amigáveis sem revelar detalhes sensíveis
     switch (err.code) {
       case 'auth/user-not-found':
-        error.value = 'Usuário não encontrado'
-        break
       case 'auth/wrong-password':
-        error.value = 'Senha incorreta'
+        error.value = 'Email ou senha incorretos'
         break
       case 'auth/too-many-requests':
         error.value = 'Muitas tentativas. Tente novamente mais tarde'
@@ -69,7 +85,6 @@ const handleLogin = async () => {
       default:
         error.value = 'Erro ao fazer login. Tente novamente'
     }
-    console.error('Erro no login:', err)
   } finally {
     loading.value = false
   }

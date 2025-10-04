@@ -12,24 +12,47 @@
 
 <script setup>
 import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
+import { getFirestore } from 'firebase/firestore'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { auth } from '../../services/firebase'
+import { useUserStore } from '../../stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 const loading = ref(false)
 const error = ref('')
+const db = getFirestore()
 
 const handleGoogleLogin = async () => {
   try {
     loading.value = true
     error.value = ''
+
+    // Tenta fazer login com Google
     const provider = new GoogleAuthProvider()
-    await signInWithPopup(auth, provider)
-    router.push('/')
+    const userCredential = await signInWithPopup(auth, provider)
+
+    // Aguarda a store atualizar os dados do usuário
+    await userStore.refreshUserData()
+
+    // Verifica se precisa completar o cadastro
+    if (!userStore.hasCompletedProfile) {
+      router.push('/cadastro')
+    } else {
+      router.push('/')
+    }
   } catch (err) {
-    error.value = 'Erro ao fazer login com Google'
     console.error('Erro no login com Google:', err)
+
+    // Mensagens de erro amigáveis
+    if (err.code === 'auth/popup-closed-by-user') {
+      error.value = 'Login cancelado'
+    } else if (err.code === 'auth/popup-blocked') {
+      error.value = 'Popup bloqueado pelo navegador. Por favor, permita popups para este site'
+    } else {
+      error.value = 'Erro ao fazer login com Google. Tente novamente'
+    }
   } finally {
     loading.value = false
   }
