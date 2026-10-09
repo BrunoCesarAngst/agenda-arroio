@@ -1,5 +1,9 @@
 # Agenda Arroio do Sal
 
+> **Status: projeto independente histórico, sem manutenção ativa.** Desenvolvido até o estágio preservado neste repositório para explorar agendamentos, autenticação e administração. Não há demonstração pública em funcionamento nem validação atual da execução. **Não é um serviço oficial do município.**
+
+**O que pode ser avaliado:** [fluxo de login Google](src/components/auth/LoginGoogle.vue), [serviço de backup](src/services/backup.js), [organização da aplicação](src/) e [scripts disponíveis](package.json). A rotina de limpeza de backups contém pendências conhecidas descritas abaixo; não trate a política de retenção como operacionalmente validada.
+
 Aplicação web para organizar agendamentos e rotinas administrativas em um contexto local.
 
 O projeto explora uma necessidade concreta: permitir que usuários e administradores operem o mesmo serviço com responsabilidades, fluxos e níveis de acesso diferentes.
@@ -38,7 +42,7 @@ O interesse técnico do projeto está na integração entre:
 - backup e restauração;
 - testes e qualidade automatizada.
 
-## Capacidades
+## Funcionalidades e mecanismos documentados
 
 - criação e acompanhamento de agendamentos;
 - área administrativa;
@@ -47,7 +51,7 @@ O interesse técnico do projeto está na integração entre:
 - backup manual e automático;
 - restauração controlada;
 - retenção e gerenciamento de backups;
-- execução com ambientes de desenvolvimento, staging e produção.
+- comandos separados para desenvolvimento, staging e produção, sem comprovação de implantação ativa.
 
 ## Arquitetura
 
@@ -153,13 +157,13 @@ A restauração substitui dados existentes e deve ser tratada como uma operaçã
 - separação entre experiência pública e administração;
 - configuração explícita por ambiente;
 - integração entre aplicação web e tarefas operacionais;
-- proteção de dados por backup e retenção;
+- implementação de rotinas de backup e configuração de retenção, ainda pendentes de validação;
 - comandos verificáveis para teste, lint e build;
 - uso de estado centralizado e roteamento tipado no front-end.
 
 ## Estado do projeto
 
-Este é um projeto público de portfólio e experimentação aplicada. O código deve ser avaliado como parte de uma trajetória de evolução técnica, não como um serviço municipal oficial.
+Projeto independente cujo desenvolvimento foi interrompido. Preservado como evidência histórica de implementação e decisões de engenharia, sem compromisso de manutenção, disponibilidade ou funcionamento atual. Não é um serviço municipal oficial.
 
 ---
 
