@@ -14,6 +14,16 @@ O projeto explora uma necessidade concreta: permitir que usuários e administrad
 
 **Como verificar:** examine [package.json](package.json), `src/` e `scripts/backup.js`; execute os testes em ambiente próprio com credenciais de desenvolvimento.
 
+## Evidências no código (inspeção de outubro de 2026)
+
+| Funcionalidade implementada no repositório | Onde conferir | Limite da evidência |
+| --- | --- | --- |
+| Login Google por popup, atualização do estado do usuário e redirecionamento conforme cadastro | [LoginGoogle.vue](src/components/auth/LoginGoogle.vue) | Fluxo identificado no código; não foi testado contra Firebase real |
+| Backup manual e automático com exportação de quatro coleções do Firestore para o Storage | [backup.js](src/services/backup.js) | Código presente; não há comprovação de execução periódica em produção |
+| Registro de status e tamanho dos backups, com período de retenção configurado em 30 dias | [backup.js](src/services/backup.js) | **Ponto de atenção:** a rotina de limpeza usa `deleteObject` e `deleteDoc`, mas essas funções não aparecem nos imports inspecionados; execução e retenção devem ser corrigidas/validadas antes de qualquer promessa operacional |
+
+**Resultado demonstrável:** fluxos e rotinas de aplicação escritos no repositório. **Não demonstrado:** usuários atendidos, disponibilidade de serviço, sucesso dos backups ou tempo economizado.
+
 ## Visão do produto
 
 A aplicação combina uma experiência pública de agendamento com recursos administrativos para gestão, acompanhamento e proteção dos dados.
