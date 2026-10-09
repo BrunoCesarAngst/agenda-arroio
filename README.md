@@ -4,6 +4,16 @@ Aplicação web para organizar agendamentos e rotinas administrativas em um cont
 
 O projeto explora uma necessidade concreta: permitir que usuários e administradores operem o mesmo serviço com responsabilidades, fluxos e níveis de acesso diferentes.
 
+## Em um minuto: problema, solução e evidências
+
+- **Problema:** permitir agendamentos e administração em fluxos distintos, preservando controle de acesso e operações de manutenção.
+- **Escopo do projeto:** aplicação pública de portfólio; participação individual e utilização real por usuários não são quantificadas aqui.
+- **Solução documentada:** interface Vue, estado com Pinia, serviços Firebase, separação de ambientes e scripts para backup.
+- **Tecnologias:** Vue 3, TypeScript, Firebase/Firestore, Vite, Jest e ferramentas de qualidade.
+- **Resultado verificável:** o repositório apresenta código e comandos de teste, build e backup em `package.json`. Isso demonstra mecanismos implementados/configurados, **não** disponibilidade ou eficácia comprovada em produção.
+
+**Como verificar:** examine [package.json](package.json), `src/` e `scripts/backup.js`; execute os testes em ambiente próprio com credenciais de desenvolvimento.
+
 ## Visão do produto
 
 A aplicação combina uma experiência pública de agendamento com recursos administrativos para gestão, acompanhamento e proteção dos dados.
